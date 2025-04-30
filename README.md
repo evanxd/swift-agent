@@ -6,7 +6,7 @@ A few lines of code can build an AI agent that can retrieve real-time data of cr
 
 ```ts
 import { ChatOpenAI } from "@langchain/openai"
-import Agent from "agent";
+import Agent from "@evanxd/agent";
 
 async function main() {
   const llm = new ChatOpenAI({ model: "gpt-4o" });
