@@ -1,6 +1,6 @@
 {
-  "name": "@evanxd/agent",
-  "version": "0.0.1",
+  "name": "fast-agent",
+  "version": "0.0.2",
   "description": "A building block of agentic systems: an LLM that can retrieve information, use tools, and store user inputs.",
   "main": "index.js",
   "scripts": {
