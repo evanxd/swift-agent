@@ -21,9 +21,8 @@ class SwiftAgent {
   }
 
   async run(query: string): Promise<string> {
-    const llmResponse = await this.llm.invoke(query);
-    let response = llmResponse.content as string;
-    return response;
+    const response = await this.llm.invoke(query);
+    return response.content as string;
   }
 }
 
