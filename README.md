@@ -6,7 +6,7 @@ A few lines of code can build an AI agent that can retrieve real-time data of cr
 
 ```ts
 import { ChatOpenAI } from "@langchain/openai"
-import Agent from "@evanxd/agent";
+import SwiftAgent from "swift-agent";
 
 async function main() {
   const llm = new ChatOpenAI({ model: "gpt-4o" });
@@ -19,7 +19,7 @@ async function main() {
     }
   };
 
-  const agent = new Agent(llm, { mcp });
+  const agent = new SwiftAgent(llm, { mcp });
   const result = await agent.run("What is the current price of bitcoin?");
 
   console.log(result);
