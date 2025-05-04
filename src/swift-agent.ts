@@ -1,4 +1,5 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { BaseLanguageModelInput } from "@langchain/core/language_models/base";
 
 interface SwiftAgentConfig {
   mcp?: {
@@ -20,7 +21,7 @@ class SwiftAgent {
     this.config = config;
   }
 
-  async run(query: string): Promise<string> {
+  async run(query: BaseLanguageModelInput): Promise<string> {
     const response = await this.llm.invoke(query);
     return response.content as string;
   }

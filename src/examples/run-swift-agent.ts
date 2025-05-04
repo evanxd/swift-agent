@@ -1,5 +1,6 @@
 import SwiftAgent from "../swift-agent";
 import dotenv from "dotenv"
+import { HumanMessage, SystemMessage } from "@langchain/core/messages"
 import { ChatGoogleGenerativeAI as LLM } from "@langchain/google-genai"
 
 dotenv.config()
@@ -11,7 +12,11 @@ async function main() {
   });
 
   const agent = new SwiftAgent(llm);
-  const result = await agent.run("Which is bigger, 9.3 or 9.11?");
+  const messages = [
+    new SystemMessage({ content: "You are a helpful assistant! Your name is Alex." }),
+    new HumanMessage({ content: "What is your name?" })
+  ];
+  const result = await agent.run(messages);
 
   console.log(result);
 }
