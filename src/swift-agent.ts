@@ -13,16 +13,16 @@ interface SwiftAgentConfig {
 }
 
 class SwiftAgent {
-  private llm: BaseChatModel;
+  private model: BaseChatModel;
   private config?: SwiftAgentConfig;
 
-  constructor(llm: BaseChatModel, config?: SwiftAgentConfig) {
-    this.llm = llm;
+  constructor(model: BaseChatModel, config?: SwiftAgentConfig) {
+    this.model = model;
     this.config = config;
   }
 
-  async run(query: BaseLanguageModelInput): Promise<string> {
-    const response = await this.llm.invoke(query);
+  async invoke(query: BaseLanguageModelInput): Promise<string> {
+    const response = await this.model.invoke(query);
     return response.content as string;
   }
 }
