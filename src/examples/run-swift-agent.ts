@@ -10,16 +10,18 @@ async function main() {
     apiKey: process.env.API_KEY // Add your API key into the .env file by adding API_KEY="your-api-key"
   });
 
-  const agent = new SwiftAgent(model);
-  const messages = [{
-      role: "system",
-      content: "You are a helpful assistant! Your name is Alex."
-    }, {
-      role: "user",
-      content: "What is your name?"
-  }];
-  const result = await agent.invoke(messages);
-
+  const agent = new SwiftAgent(model, {
+    systemPrompt: "You are a helpful assistant!",
+    mcp: {
+      mcpServers: {
+        math: {
+          command: "npx",
+          args: ["-y", "nm-mcp-math"]
+        }
+      }
+    }
+  });
+  const result = await agent.run("what's (13 + 74) x 234?");
   console.log(result);
 }
 

@@ -1,4 +1,7 @@
 interface MCPServerSettings {
+  throwOnLoadError?: boolean,
+  prefixToolNameWithServerName?: boolean,
+  additionalToolNamePrefix?: string,
   mcpServers: {
     [serverName: string]: {
       command: string;
@@ -7,14 +10,9 @@ interface MCPServerSettings {
   };
 }
 
-interface SwiftAgentConfig {
-  mcp?: MCPServerSettings
+interface SwiftAgentOptions {
+  mcp?: MCPServerSettings,
+  systemPrompt?: string
 }
 
-interface Tool {
-  name: string,
-  description?: string,
-  input_schema?: any,
-}
-
-export { MCPServerSettings, SwiftAgentConfig, Tool };
+export { MCPServerSettings, SwiftAgentOptions };
