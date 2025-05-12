@@ -18,9 +18,7 @@ async function main(): Promise<void> {
     }
   };
 
-  const agent = new SwiftAgent(llm, {
-    mcp, systemPrompt: "You are a helpful assistant!"
-  });
+  const agent = new SwiftAgent(llm, { mcp });
   const result = await agent.run("what's (13 + 74) x 234?");
   console.log(result?.at(-1)?.content);
 }
