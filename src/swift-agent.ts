@@ -1,15 +1,14 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { BaseLanguageModelInput } from "@langchain/core/language_models/base";
-import { BaseMessageLike } from "@langchain/core/messages";
+import { BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import { SwiftAgentOptions } from "./interfaces"
 
 class SwiftAgent {
-  public messages: Array<BaseMessageLike> = [];
-  private model: BaseChatModel;
-  private mcpClient?: MultiServerMCPClient;
   private isMCPToolsInitialized: boolean = false;
+  private mcpClient?: MultiServerMCPClient;
+  private messages: Array<BaseMessage> = [];
+  private model: BaseChatModel;
   private options?: SwiftAgentOptions;
 
   constructor(model: BaseChatModel, options?: SwiftAgentOptions) {
@@ -23,32 +22,32 @@ class SwiftAgent {
         additionalToolNamePrefix: this.options.mcp.additionalToolNamePrefix || "mcp",
       });
     }
+    if (options?.messageHistory) {
+      this.messages = options.messageHistory;
+    }
     if (options?.systemPrompt) {
-      this.messages.push({ role: "system", content: options.systemPrompt });
+      if (this.messages.length === 0) {
+        this.messages.push(new SystemMessage(options.systemPrompt));
+      } else if (this.messages[0].getType() === "system") {
+        this.messages[0].content = options.systemPrompt;
+      } else {
+        this.messages.unshift(new SystemMessage(options.systemPrompt));
+      }
     }
   }
 
-  async run(message: BaseLanguageModelInput) {
-    if (Array.isArray(message)) {
-      this.messages = [...this.messages, ...message];
-    } else if (typeof message === 'string') {
-      this.messages.push({ role: "user", content: message });
-    } else {
-      // Assuming query is a PromptValue, convert it to string
-      this.messages.push({ role: "user", content: message.toString() });
-    }
-
+  async run(message: string): Promise<BaseMessage[] | undefined> {
     let tools;
     if (!this.isMCPToolsInitialized) {
       tools = await this.mcpClient?.getTools();
       this.isMCPToolsInitialized = true;
     }
-
     const agent = createReactAgent({ llm: this.model, tools: tools || [] });
 
     try {
+      this.messages.push(new HumanMessage(message));
       const response = await agent.invoke({ messages: this.messages });
-      return response;
+      return response.messages;
     } catch (e) {
       console.error("Error during agent execution:", e);
     }

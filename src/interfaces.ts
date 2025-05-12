@@ -1,7 +1,9 @@
+import { BaseMessage } from "@langchain/core/messages";
+
 interface MCPServerSettings {
-  throwOnLoadError?: boolean,
-  prefixToolNameWithServerName?: boolean,
-  additionalToolNamePrefix?: string,
+  throwOnLoadError?: boolean;
+  prefixToolNameWithServerName?: boolean;
+  additionalToolNamePrefix?: string;
   mcpServers: {
     [serverName: string]: {
       command: string;
@@ -11,8 +13,9 @@ interface MCPServerSettings {
 }
 
 interface SwiftAgentOptions {
-  mcp?: MCPServerSettings,
-  systemPrompt?: string
+  mcp?: MCPServerSettings;
+  messageHistory?: BaseMessage[];
+  systemPrompt?: string;
 }
 
 export { MCPServerSettings, SwiftAgentOptions };

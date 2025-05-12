@@ -5,11 +5,11 @@ SwiftAgent is an NPM module that implements a building block of agentic systems,
 A few lines of code can build an AI agent that can retrieve real-time data of cryptocurrencies.
 
 ```ts
-import { ChatOpenAI } from "@langchain/openai"
+import { ChatGoogleGenerativeAI as Model } from "@langchain/google-genai"
 import SwiftAgent from "swift-agent";
 
 async function main() {
-  const llm = new ChatOpenAI({ model: "gpt-4o" });
+  const llm = new Model({ model: "gemini-2.5-flash-preview-04-17" });
   const mcp = {
     mcpServers: {
       "coinmarketcap": {
