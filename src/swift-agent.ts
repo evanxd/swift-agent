@@ -1,8 +1,13 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
+import {
+  BaseMessage,
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
 import { MultiServerMCPClient } from "@langchain/mcp-adapters";
-import { createReactAgent } from "@langchain/langgraph/prebuilt"
-import { SwiftAgentOptions } from "./interfaces"
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+import { SwiftAgentOptions } from "./interfaces";
 
 class SwiftAgent {
   private isMCPToolsInitialized: boolean = false;
@@ -18,8 +23,10 @@ class SwiftAgent {
       this.mcpClient = new MultiServerMCPClient({
         ...this.options.mcp,
         throwOnLoadError: this.options.mcp.throwOnLoadError || true,
-        prefixToolNameWithServerName: this.options.mcp.prefixToolNameWithServerName || true,
-        additionalToolNamePrefix: this.options.mcp.additionalToolNamePrefix || "mcp",
+        prefixToolNameWithServerName:
+          this.options.mcp.prefixToolNameWithServerName || true,
+        additionalToolNamePrefix:
+          this.options.mcp.additionalToolNamePrefix || "mcp",
       });
     }
     if (options?.messageHistory) {
