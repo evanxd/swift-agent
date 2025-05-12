@@ -8,7 +8,7 @@ A few lines of code can build an AI agent that can retrieve real-time data of cr
 import { ChatGoogleGenerativeAI as Model } from "@langchain/google-genai"
 import SwiftAgent from "swift-agent";
 
-async function main() {
+async function main(): Promise<void> {
   const llm = new Model({ model: "gemini-2.5-flash-preview-04-17" });
   const mcp = {
     mcpServers: {
@@ -21,8 +21,7 @@ async function main() {
 
   const agent = new SwiftAgent(llm, { mcp });
   const result = await agent.run("What is the current price of bitcoin?");
-
-  console.log(result);
+  console.log(result?.at(-1)?.content);
 }
 
 main().catch(console.error);
