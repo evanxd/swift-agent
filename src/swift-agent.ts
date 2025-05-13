@@ -7,27 +7,28 @@ import {
 import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-import { SwiftAgentOptions } from "./interfaces";
+import { MCPClientConfig, SwiftAgentOptions } from "./interfaces";
 
 class SwiftAgent {
   private isMCPToolsInitialized: boolean = false;
   private mcpClient?: MultiServerMCPClient;
   private messages: Array<BaseMessage> = [];
   private model: BaseChatModel;
-  private options?: SwiftAgentOptions;
+  private _options?: SwiftAgentOptions;
 
   constructor(model: BaseChatModel, options?: SwiftAgentOptions) {
     this.model = model;
-    this.options = options;
-    if (this.options?.mcp) {
-      this.mcpClient = new MultiServerMCPClient({
-        ...this.options.mcp,
-        throwOnLoadError: this.options.mcp.throwOnLoadError || true,
-        prefixToolNameWithServerName:
-          this.options.mcp.prefixToolNameWithServerName || true,
-        additionalToolNamePrefix:
-          this.options.mcp.additionalToolNamePrefix || "mcp",
-      });
+    this._options = options;
+    if (this._options?.mcp) {
+      this._options.mcp.throwOnLoadError =
+        this._options.mcp.throwOnLoadError || true;
+      this._options.mcp.prefixToolNameWithServerName =
+        this._options.mcp.prefixToolNameWithServerName || true;
+      this._options.mcp.additionalToolNamePrefix =
+        this._options.mcp.additionalToolNamePrefix || "mcp";
+      this.mcpClient = new MultiServerMCPClient(
+        this._options.mcp as MCPClientConfig,
+      );
     }
     if (options?.messageHistory) {
       this.messages = options.messageHistory;
@@ -41,6 +42,10 @@ class SwiftAgent {
         this.messages.unshift(new SystemMessage(options.systemPrompt));
       }
     }
+  }
+
+  get options() {
+    return this._options;
   }
 
   async run(message: string): Promise<BaseMessage[] | undefined> {

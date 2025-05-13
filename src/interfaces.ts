@@ -1,6 +1,18 @@
 import { BaseMessage } from "@langchain/core/messages";
 
-interface MCPServerSettings {
+interface MCPClientConfig extends MCP {
+  throwOnLoadError: boolean;
+  prefixToolNameWithServerName: boolean;
+  additionalToolNamePrefix: string;
+}
+
+interface SwiftAgentOptions {
+  mcp?: MCP;
+  messageHistory?: BaseMessage[];
+  systemPrompt?: string;
+}
+
+interface MCP {
   throwOnLoadError?: boolean;
   prefixToolNameWithServerName?: boolean;
   additionalToolNamePrefix?: string;
@@ -12,10 +24,4 @@ interface MCPServerSettings {
   };
 }
 
-interface SwiftAgentOptions {
-  mcp?: MCPServerSettings;
-  messageHistory?: BaseMessage[];
-  systemPrompt?: string;
-}
-
-export { MCPServerSettings, SwiftAgentOptions };
+export { MCPClientConfig, SwiftAgentOptions };
