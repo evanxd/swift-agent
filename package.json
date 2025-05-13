@@ -1,6 +1,6 @@
 {
   "name": "swift-agent",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A building block of agentic systems: an LLM that can retrieve information, use tools, and store user inputs.",
   "main": "dist/swift-agent.ts",
   "scripts": {
