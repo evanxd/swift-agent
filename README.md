@@ -63,7 +63,7 @@ runAgent().catch(console.error);
 
 ## Example
 
-A runnable example is provided in `src/examples/run-swift-agent.ts`. To run this example:
+A runnable example is provided in `examples/run-swift-agent.ts`. To run this example:
 
 1.  Ensure you have a `.env` file in the project root with your `API_KEY` for the chosen LLM.
 2.  Install dependencies: `npm install` or `yarn install`
