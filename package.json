@@ -4,7 +4,7 @@
   "description": "A building block of agentic systems: an LLM that can retrieve information, use tools, and store user inputs.",
   "main": "dist/swift-agent.ts",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest __test__",
     "example": "ts-node ./src/examples/run-swift-agent.ts",
     "lint": "eslint --config eslint.config.mjs ."
   },

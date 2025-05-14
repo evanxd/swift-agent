@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { FakeChatModel } from "@langchain/core/utils/testing";
 
-import SwiftAgent from "./swift-agent";
+import SwiftAgent from "../src/swift-agent";
 
 describe("SwiftAgent", () => {
   describe("Default Values", () => {
