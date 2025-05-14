@@ -100,6 +100,12 @@ Runs the agent with a new human message.
 *   `message`: The human message string to send to the agent.
 *   Returns: A promise that resolves to an array of `BaseMessage` representing the agent's response, or `undefined` if an error occurred.
 
+### `agent.setModel(model: BaseChatModel): void`
+
+Sets the internal language model used by the agent.
+
+*   `model`: An instance of a LangChain `BaseChatModel`.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests.
