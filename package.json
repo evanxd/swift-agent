@@ -5,7 +5,7 @@
   "main": "dist/swift-agent.ts",
   "scripts": {
     "test": "vitest __test__",
-    "example": "ts-node ./src/examples/run-swift-agent.ts",
+    "example": "ts-node ./examples/run-swift-agent.ts",
     "lint": "eslint --config eslint.config.mjs ."
   },
   "keywords": [

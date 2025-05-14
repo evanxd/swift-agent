@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { ChatGoogleGenerativeAI as Model } from "@langchain/google-genai";
 
-import SwiftAgent from "../swift-agent";
+import SwiftAgent from "../src/swift-agent";
 
 dotenv.config();
 
