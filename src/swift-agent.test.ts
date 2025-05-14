@@ -34,4 +34,20 @@ describe("SwiftAgent", () => {
       expect(agent.options?.mcp?.additionalToolNamePrefix).toBe("mcp");
     });
   });
+
+  describe("setModel", () => {
+    let llm: FakeChatModel;
+    let agent: SwiftAgent;
+
+    beforeEach(() => {
+      llm = new FakeChatModel({});
+      agent = new SwiftAgent(llm);
+    });
+
+    it("should update the internal model", () => {
+      const newLlm = new FakeChatModel({});
+      agent.setModel(newLlm);
+      expect(agent.model).toBe(newLlm);
+    });
+  });
 });
