@@ -106,6 +106,18 @@ Sets the internal language model used by the agent.
 
 *   `model`: An instance of a LangChain `BaseChatModel`.
 
+### `agent.enableTool(toolName: string): void`
+
+Enables a specific tool by its name.
+
+*   `toolName`: The name of the tool to enable.
+
+### `agent.disableTool(toolName: string): void`
+
+Disables a specific tool by its name.
+
+*   `toolName`: The name of the tool to disable.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests.
