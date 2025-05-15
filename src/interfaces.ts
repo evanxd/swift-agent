@@ -1,15 +1,14 @@
 import { BaseMessage } from "@langchain/core/messages";
-
-interface MCPClientConfig extends MCP {
-  throwOnLoadError: boolean;
-  prefixToolNameWithServerName: boolean;
-  additionalToolNamePrefix: string;
-}
-
-interface SwiftAgentOptions {
+import { StructuredToolInterface } from "@langchain/core/tools";
+interface SwiftAgentOptionsInterface {
   mcp?: MCP;
   messageHistory?: BaseMessage[];
   systemPrompt?: string;
+}
+interface MCPClientConfigInterface extends MCP {
+  throwOnLoadError: boolean;
+  prefixToolNameWithServerName: boolean;
+  additionalToolNamePrefix: string;
 }
 
 interface MCP {
@@ -24,4 +23,8 @@ interface MCP {
   };
 }
 
-export { MCPClientConfig, SwiftAgentOptions };
+interface ToolInterface extends StructuredToolInterface {
+  isEnabled?: boolean;
+}
+
+export { MCPClientConfigInterface, SwiftAgentOptionsInterface, ToolInterface };

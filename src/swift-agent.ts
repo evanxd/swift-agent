@@ -4,22 +4,25 @@ import {
   HumanMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import { StructuredToolInterface } from "@langchain/core/tools";
 import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-import { MCPClientConfig, SwiftAgentOptions } from "./interfaces";
+import {
+  MCPClientConfigInterface,
+  SwiftAgentOptionsInterface,
+  ToolInterface,
+} from "./interfaces";
 
 class SwiftAgent {
   private _model: BaseChatModel;
-  private _options?: SwiftAgentOptions;
+  private _options?: SwiftAgentOptionsInterface;
   private _mcpClient?: MultiServerMCPClient;
-  private _tools: Array<StructuredToolInterface> | undefined;
+  private _tools: Array<ToolInterface> | undefined;
   private _agent: ReturnType<typeof createReactAgent> | undefined;
   private _messages: Array<BaseMessage> = [];
   private _isInitialized: boolean = false;
 
-  constructor(model: BaseChatModel, options?: SwiftAgentOptions) {
+  constructor(model: BaseChatModel, options?: SwiftAgentOptionsInterface) {
     this._model = model;
     this._options = options;
     if (this._options?.mcp) {
@@ -30,7 +33,7 @@ class SwiftAgent {
       this._options.mcp.additionalToolNamePrefix =
         this._options.mcp.additionalToolNamePrefix || "mcp";
       this._mcpClient = new MultiServerMCPClient(
-        this._options.mcp as MCPClientConfig,
+        this._options.mcp as MCPClientConfigInterface,
       );
     }
     if (options?.messageHistory) {
@@ -55,9 +58,17 @@ class SwiftAgent {
     return this._options;
   }
 
+  get tools() {
+    return this._tools;
+  }
+
   async run(message: string): Promise<BaseMessage[] | undefined> {
     if (!this._isInitialized) {
-      this._tools = await this._mcpClient?.getTools();
+      const tools = (await this._mcpClient?.getTools()) as Array<ToolInterface>;
+      this._tools = tools.map((tool) => {
+        tool.isEnabled = true;
+        return tool;
+      });
       this._agent = createReactAgent({
         llm: this._model,
         tools: this._tools || [],
@@ -83,6 +94,25 @@ class SwiftAgent {
     this._agent = createReactAgent({
       llm: this._model,
       tools: this._tools || [],
+    });
+  }
+
+  enableTool(name: string): void {
+    this._setToolEnabled(name, true);
+  }
+
+  disableTool(name: string): void {
+    this._setToolEnabled(name, false);
+  }
+
+  private _setToolEnabled(name: string, isEnabled: boolean = true): void {
+    const tool = this._tools?.find((tool) => tool.name === name);
+    if (tool) {
+      tool.isEnabled = isEnabled;
+    }
+    this._agent = createReactAgent({
+      llm: this._model,
+      tools: this._tools?.filter((tool) => tool.isEnabled) || [],
     });
   }
 }
