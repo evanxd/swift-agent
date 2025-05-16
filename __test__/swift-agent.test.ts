@@ -3,21 +3,23 @@ import { FakeChatModel } from "@langchain/core/utils/testing";
 
 import SwiftAgent from "../src/swift-agent";
 
+const MCP_SERVERS = {
+  "test-mcp-server-1": {
+    command: "npx",
+    args: ["test-mcp-server-1"],
+  },
+  "test-mcp-server-2": {
+    command: "npx",
+    args: ["test-mcp-server-2"],
+  },
+};
+
 vi.mock("@langchain/mcp-adapters", () => {
   return {
     MultiServerMCPClient: vi.fn().mockImplementation(() => {
       return {
         config: {
-          mcpServers: {
-            "test-mcp-server-1": {
-              command: "npx",
-              args: ["test-mcp-server-1"],
-            },
-            "test-mcp-server-2": {
-              command: "npx",
-              args: ["test-mcp-server-2"],
-            },
-          },
+          mcpServers: MCP_SERVERS,
         },
         getTools: vi.fn().mockImplementation((serverName: string) => {
           switch (serverName) {
@@ -43,16 +45,7 @@ describe("SwiftAgent", () => {
       llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
         mcp: {
-          mcpServers: {
-            "test-mcp-server-1": {
-              command: "npx",
-              args: ["test-mcp-server-1"],
-            },
-            "test-mcp-server-2": {
-              command: "npx",
-              args: ["test-mcp-server-2"],
-            },
-          },
+          mcpServers: MCP_SERVERS,
         },
       });
     });
@@ -78,16 +71,7 @@ describe("SwiftAgent", () => {
       llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
         mcp: {
-          mcpServers: {
-            "test-mcp-server-1": {
-              command: "npx",
-              args: ["test-mcp-server-1"],
-            },
-            "test-mcp-server-2": {
-              command: "npx",
-              args: ["test-mcp-server-2"],
-            },
-          },
+          mcpServers: MCP_SERVERS,
         },
       });
       await agent.run("hi");
@@ -125,16 +109,7 @@ describe("SwiftAgent", () => {
       llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
         mcp: {
-          mcpServers: {
-            "test-mcp-server-1": {
-              command: "npx",
-              args: ["test-mcp-server-1"],
-            },
-            "test-mcp-server-2": {
-              command: "npx",
-              args: ["test-mcp-server-2"],
-            },
-          },
+          mcpServers: MCP_SERVERS,
         },
       });
       await agent.run("hi");
@@ -164,16 +139,7 @@ describe("SwiftAgent", () => {
       llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
         mcp: {
-          mcpServers: {
-            "test-mcp-server-1": {
-              command: "npx",
-              args: ["test-mcp-server-1"],
-            },
-            "test-mcp-server-2": {
-              command: "npx",
-              args: ["test-mcp-server-2"],
-            },
-          },
+          mcpServers: MCP_SERVERS,
         },
       });
       await agent.run("hi");
