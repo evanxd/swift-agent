@@ -7,11 +7,28 @@ vi.mock("@langchain/mcp-adapters", () => {
   return {
     MultiServerMCPClient: vi.fn().mockImplementation(() => {
       return {
-        getTools: vi.fn().mockResolvedValue([
-          { name: "test-tool-1" },
-          { name: "test-tool-2" },
-          { name: "test-tool-3" },
-        ]),
+        config: {
+          mcpServers: {
+            "test-mcp-server-1": {
+              command: "npx",
+              args: ["test-mcp-server-1"],
+            },
+            "test-mcp-server-2": {
+              command: "npx",
+              args: ["test-mcp-server-2"],
+            },
+          },
+        },
+        getTools: vi.fn().mockImplementation((serverName: string) => {
+          switch (serverName) {
+            case "test-mcp-server-1":
+              return [{ name: "test-tool-1" }, { name: "test-tool-2" }];
+            case "test-mcp-server-2":
+              return [{ name: "test-tool-3" }];
+            default:
+              return [];
+          }
+        }),
       };
     }),
   };
@@ -27,9 +44,13 @@ describe("SwiftAgent", () => {
       agent = new SwiftAgent(llm, {
         mcp: {
           mcpServers: {
-            "test-mcp-server": {
+            "test-mcp-server-1": {
               command: "npx",
-              args: ["test-mcp-server"],
+              args: ["test-mcp-server-1"],
+            },
+            "test-mcp-server-2": {
+              command: "npx",
+              args: ["test-mcp-server-2"],
             },
           },
         },
@@ -58,9 +79,13 @@ describe("SwiftAgent", () => {
       agent = new SwiftAgent(llm, {
         mcp: {
           mcpServers: {
-            "test-mcp-server": {
+            "test-mcp-server-1": {
               command: "npx",
-              args: ["test-mcp-server"],
+              args: ["test-mcp-server-1"],
+            },
+            "test-mcp-server-2": {
+              command: "npx",
+              args: ["test-mcp-server-2"],
             },
           },
         },
@@ -92,7 +117,7 @@ describe("SwiftAgent", () => {
     });
   });
 
-  describe("enableTool", () => {
+  describe("enableMcpServer", () => {
     let llm: FakeChatModel;
     let agent: SwiftAgent;
 
@@ -101,9 +126,13 @@ describe("SwiftAgent", () => {
       agent = new SwiftAgent(llm, {
         mcp: {
           mcpServers: {
-            "test-mcp-server": {
+            "test-mcp-server-1": {
               command: "npx",
-              args: ["test-mcp-server"],
+              args: ["test-mcp-server-1"],
+            },
+            "test-mcp-server-2": {
+              command: "npx",
+              args: ["test-mcp-server-2"],
             },
           },
         },
@@ -111,21 +140,23 @@ describe("SwiftAgent", () => {
       await agent.run("hi");
     });
 
-    it("should enable a tool by name", async () => {
-      agent.disableTool("test-tool-2");
-      expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(false);
-      agent.enableTool("test-tool-2");
+    it("should enable an MCP server by name", () => {
+      agent.disableMcpServer("test-mcp-server-2");
+      expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(true);
+      expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(true);
+      expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(false);
+      agent.enableMcpServer("test-mcp-server-2");
       expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(true);
       expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(true);
       expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(true);
     });
 
-    it("should not throw error if tool name does not exist", () => {
-      expect(() => agent.enableTool("non-existent-tool")).not.toThrow();
+    it("should not throw error if server name does not exist", () => {
+      expect(() => agent.enableMcpServer("non-existent-server")).not.toThrow();
     });
   });
 
-  describe("disableTool", () => {
+  describe("disableMcpServer", () => {
     let llm: FakeChatModel;
     let agent: SwiftAgent;
 
@@ -134,9 +165,13 @@ describe("SwiftAgent", () => {
       agent = new SwiftAgent(llm, {
         mcp: {
           mcpServers: {
-            "test-mcp-server": {
+            "test-mcp-server-1": {
               command: "npx",
-              args: ["test-mcp-server"],
+              args: ["test-mcp-server-1"],
+            },
+            "test-mcp-server-2": {
+              command: "npx",
+              args: ["test-mcp-server-2"],
             },
           },
         },
@@ -144,15 +179,15 @@ describe("SwiftAgent", () => {
       await agent.run("hi");
     });
 
-    it("should disable a tool by name", () => {
-      agent.disableTool("test-tool-3");
-      expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(true);
-      expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(true);
-      expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(false);
+    it("should disable an MCP server by name", () => {
+      agent.disableMcpServer("test-mcp-server-1");
+      expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(false);
+      expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(false);
+      expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(true);
     });
 
-    it("should not throw error if tool name does not exist", () => {
-      expect(() => agent.disableTool("non-existent-tool")).not.toThrow();
+    it("should not throw error if server name does not exist", () => {
+      expect(() => agent.disableMcpServer("non-existent-server")).not.toThrow();
     });
   });
 });

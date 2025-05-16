@@ -24,6 +24,7 @@ interface MCP {
 }
 
 interface ToolInterface extends StructuredToolInterface {
+  serverName?: string;
   isEnabled?: boolean;
 }
 

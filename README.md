@@ -106,17 +106,17 @@ Sets the internal language model used by the agent.
 
 *   `model`: An instance of a LangChain `BaseChatModel`.
 
-### `agent.enableTool(toolName: string): void`
+### `agent.enableMcpServer(serverName: string): void`
 
-Enables a specific tool by its name.
+Enables a specific MCP server by its name.
 
-*   `toolName`: The name of the tool to enable.
+*   `serverName`: The name of the MCP server to enable.
 
-### `agent.disableTool(toolName: string): void`
+### `agent.disableMcpServer(serverName: string): void`
 
-Disables a specific tool by its name.
+Disables a specific MCP server by its name.
 
-*   `toolName`: The name of the tool to disable.
+*   `serverName`: The name of the MCP server to disable.
 
 ## Contributing
 

@@ -22,7 +22,7 @@
   "dependencies": {
     "@langchain/google-genai": "^0.2.5",
     "@langchain/langgraph": "^0.2.71",
-    "@langchain/mcp-adapters": "^0.4.2",
+    "@langchain/mcp-adapters": "^0.4.5",
     "dotenv": "^16.5.0",
     "langchain": "^0.3.24"
   },

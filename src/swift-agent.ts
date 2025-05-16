@@ -64,14 +64,10 @@ class SwiftAgent {
 
   async run(message: string): Promise<BaseMessage[] | undefined> {
     if (!this._isInitialized) {
-      const tools = (await this._mcpClient?.getTools()) as Array<ToolInterface>;
-      this._tools = tools.map((tool) => {
-        tool.isEnabled = true;
-        return tool;
-      });
+      this._tools = await this._getTools();
       this._agent = createReactAgent({
         llm: this._model,
-        tools: this._tools || [],
+        tools: this._tools,
       });
       this._isInitialized = true;
     }
@@ -97,17 +93,40 @@ class SwiftAgent {
     });
   }
 
-  enableTool(name: string): void {
-    this._setToolEnabled(name, true);
+  enableMcpServer(serverName: string): void {
+    this._setToolsEnabled(serverName, true);
   }
 
-  disableTool(name: string): void {
-    this._setToolEnabled(name, false);
+  disableMcpServer(serverName: string): void {
+    this._setToolsEnabled(serverName, false);
   }
 
-  private _setToolEnabled(name: string, isEnabled: boolean = true): void {
-    const tool = this._tools?.find((tool) => tool.name === name);
-    if (tool) {
+  private async _getTools(): Promise<ToolInterface[]> {
+    const allTools: Array<ToolInterface> = [];
+    for (const serverName of Object.keys(
+      this._mcpClient?.config.mcpServers || {},
+    )) {
+      const tools = (await this._mcpClient?.getTools(
+        serverName,
+      )) as Array<ToolInterface>;
+      for (const tool of tools) {
+        tool.serverName = serverName;
+        tool.isEnabled = true;
+      }
+      allTools.push(...tools);
+    }
+    return allTools;
+  }
+
+  private _setToolsEnabled(
+    serverName: string,
+    isEnabled: boolean = true,
+  ): void {
+    const tools = this._tools?.filter((tool) => tool.serverName === serverName);
+    if (!tools || tools.length === 0) {
+      return;
+    }
+    for (const tool of tools) {
       tool.isEnabled = isEnabled;
     }
     this._agent = createReactAgent({
