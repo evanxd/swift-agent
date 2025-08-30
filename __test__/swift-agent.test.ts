@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { FakeChatModel } from "@langchain/core/utils/testing";
 
-import SwiftAgent from "../src/swift-agent";
+import SwiftAgent from "../src/index";
 
 const MCP_SERVERS = {
   "test-mcp-server-1": {

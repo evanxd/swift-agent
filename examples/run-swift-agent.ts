@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
 import { ChatGoogleGenerativeAI as Model } from "@langchain/google-genai";
 
-import SwiftAgent from "../src/swift-agent";
+import SwiftAgent from "../src/index";
 
 dotenv.config();
 
-async function main(): Promise<void> {
+async function main() {
   const llm = new Model({
-    model: "gemini-2.5-flash-preview-04-17",
-    apiKey: process.env.API_KEY, // Add your API key into the .env file by adding API_KEY="your-api-key"
+    model: "gemini-2.5-flash",
+    apiKey: process.env.GEMINI_API_KEY,
   });
   const mcp = {
     mcpServers: {

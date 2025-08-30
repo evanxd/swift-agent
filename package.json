@@ -2,17 +2,19 @@
   "name": "swift-agent",
   "version": "0.0.15",
   "description": "A building block of agentic systems: an LLM that can retrieve information, use tools, and store user inputs.",
-  "main": "dist/swift-agent.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "test": "vitest __test__",
-    "example": "ts-node ./examples/run-swift-agent.ts",
-    "lint": "eslint --config eslint.config.mjs ."
+    "example": "ts-node examples/run-swift-agent.ts",
+    "lint": "eslint"
   },
   "keywords": [
-    "AI",
-    "LLM",
-    "MCP",
-    "ai-agent"
+    "ai",
+    "llm",
+    "mcp",
+    "agent"
   ],
   "author": {
     "name": "Evan Tseng-Jen Tseng",
@@ -27,17 +29,11 @@
     "langchain": "^0.3.24"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "@typescript-eslint/eslint-plugin": "^8.32.0",
-    "@typescript-eslint/parser": "^8.32.0",
-    "eslint": "^9.26.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-import-resolver-typescript": "^4.3.4",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.4.0",
+    "@tsconfig/node24": "^24.0.1",
+    "@types/node": "^24.3.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0",
     "vitest": "^3.1.3"
   }
 }
