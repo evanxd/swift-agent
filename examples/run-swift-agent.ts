@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { ChatGoogleGenerativeAI as Model } from "@langchain/google-genai";
 
-import SwiftAgent from "../src/index";
+import { SwiftAgent } from "../src/index";
 
 dotenv.config();
 
@@ -18,10 +18,10 @@ async function main() {
       },
     },
   };
-
   const agent = new SwiftAgent(llm, { mcp });
   const result = await agent.run("what's (13 + 74) x 234?");
-  console.log(result?.at(-1)?.content);
+  console.log(result.at(-1)?.text);
+  agent.disconnectMCPServers();
 }
 
 main().catch(console.error);

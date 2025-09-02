@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { FakeChatModel } from "@langchain/core/utils/testing";
 
-import SwiftAgent from "../src/index";
+import { SwiftAgent } from "../src/index";
 
-const MCP_SERVERS = {
+const mcpServers = {
   "test-mcp-server-1": {
     command: "npx",
     args: ["test-mcp-server-1"],
@@ -18,9 +18,7 @@ vi.mock("@langchain/mcp-adapters", () => {
   return {
     MultiServerMCPClient: vi.fn().mockImplementation(() => {
       return {
-        config: {
-          mcpServers: MCP_SERVERS,
-        },
+        config: { mcpServers },
         getTools: vi.fn().mockImplementation((serverName: string) => {
           switch (serverName) {
             case "test-mcp-server-1":
@@ -37,16 +35,15 @@ vi.mock("@langchain/mcp-adapters", () => {
 });
 
 describe("SwiftAgent", () => {
+  const llm = new FakeChatModel({});
+  llm.bindTools = vi.fn().mockReturnValue(llm);
+
   describe("Default Values", () => {
-    let llm: FakeChatModel;
     let agent: SwiftAgent;
 
     beforeEach(() => {
-      llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
-        mcp: {
-          mcpServers: MCP_SERVERS,
-        },
+        mcp: { mcpServers },
       });
     });
 
@@ -64,15 +61,11 @@ describe("SwiftAgent", () => {
   });
 
   describe("run", () => {
-    let llm: FakeChatModel;
     let agent: SwiftAgent;
 
     beforeEach(async () => {
-      llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
-        mcp: {
-          mcpServers: MCP_SERVERS,
-        },
+        mcp: { mcpServers },
       });
       await agent.run("hi");
     });
@@ -86,11 +79,9 @@ describe("SwiftAgent", () => {
   });
 
   describe("setModel", () => {
-    let llm: FakeChatModel;
     let agent: SwiftAgent;
 
     beforeEach(() => {
-      llm = new FakeChatModel({});
       agent = new SwiftAgent(llm);
     });
 
@@ -102,58 +93,50 @@ describe("SwiftAgent", () => {
   });
 
   describe("enableMcpServer", () => {
-    let llm: FakeChatModel;
     let agent: SwiftAgent;
 
     beforeEach(async () => {
-      llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
-        mcp: {
-          mcpServers: MCP_SERVERS,
-        },
+        mcp: { mcpServers },
       });
       await agent.run("hi");
     });
 
     it("should enable an MCP server by name", () => {
-      agent.disableMcpServer("test-mcp-server-2");
+      agent.disableMCPServer("test-mcp-server-2");
       expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(true);
       expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(true);
       expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(false);
-      agent.enableMcpServer("test-mcp-server-2");
+      agent.enableMCPServer("test-mcp-server-2");
       expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(true);
       expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(true);
       expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(true);
     });
 
     it("should not throw error if server name does not exist", () => {
-      expect(() => agent.enableMcpServer("non-existent-server")).not.toThrow();
+      expect(() => agent.enableMCPServer("non-existent-server")).not.toThrow();
     });
   });
 
   describe("disableMcpServer", () => {
-    let llm: FakeChatModel;
     let agent: SwiftAgent;
 
     beforeEach(async () => {
-      llm = new FakeChatModel({});
       agent = new SwiftAgent(llm, {
-        mcp: {
-          mcpServers: MCP_SERVERS,
-        },
+        mcp: { mcpServers },
       });
       await agent.run("hi");
     });
 
     it("should disable an MCP server by name", () => {
-      agent.disableMcpServer("test-mcp-server-1");
+      agent.disableMCPServer("test-mcp-server-1");
       expect(agent.tools?.find(tool => tool.name === "test-tool-1")?.isEnabled).toBe(false);
       expect(agent.tools?.find(tool => tool.name === "test-tool-2")?.isEnabled).toBe(false);
       expect(agent.tools?.find(tool => tool.name === "test-tool-3")?.isEnabled).toBe(true);
     });
 
     it("should not throw error if server name does not exist", () => {
-      expect(() => agent.disableMcpServer("non-existent-server")).not.toThrow();
+      expect(() => agent.disableMCPServer("non-existent-server")).not.toThrow();
     });
   });
 });

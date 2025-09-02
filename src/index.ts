@@ -62,26 +62,21 @@ class SwiftAgent {
     return this._tools;
   }
 
-  async run(message: string): Promise<BaseMessage[] | undefined> {
+  async run(message: string): Promise<BaseMessage[]> {
     if (!this._isInitialized) {
       this._tools = await this._getTools();
       this._agent = createReactAgent({
         llm: this._model,
         tools: this._tools,
       });
-      this._isInitialized = true;
     }
-    try {
-      this._messages.push(new HumanMessage(message));
-      if (this._agent) {
-        const response = await this._agent.invoke({ messages: this._messages });
-        return response.messages;
-      } else {
-        console.error("Agent not initialized.");
-        return undefined;
-      }
-    } catch (e) {
-      console.error("Error during agent execution:", e);
+    this._messages.push(new HumanMessage(message));
+    if (this._agent) {
+      this._isInitialized = true;
+      const response = await this._agent.invoke({ messages: this._messages });
+      return response.messages;
+    } else {
+      throw("The agent is not initialized yet.");
     }
   }
 
@@ -93,11 +88,17 @@ class SwiftAgent {
     });
   }
 
-  enableMcpServer(serverName: string): void {
+  async disconnectMCPServers(): Promise<void> {
+    if (this._mcpClient) {
+      await this._mcpClient.close();
+    }
+  }
+
+  enableMCPServer(serverName: string): void {
     this._setToolsEnabled(serverName, true);
   }
 
-  disableMcpServer(serverName: string): void {
+  disableMCPServer(serverName: string): void {
     this._setToolsEnabled(serverName, false);
   }
 
@@ -136,4 +137,4 @@ class SwiftAgent {
   }
 }
 
-export default SwiftAgent;
+export { SwiftAgent };
