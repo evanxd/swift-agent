@@ -13,7 +13,7 @@ import {
   ToolInterface,
 } from "./interfaces";
 
-class SwiftAgent {
+export class SwiftAgent {
   private _model: BaseChatModel;
   private _options?: SwiftAgentOptionsInterface;
   private _mcpClient?: MultiServerMCPClient;
@@ -144,5 +144,3 @@ class SwiftAgent {
     });
   }
 }
-
-export { SwiftAgent };
