@@ -92,7 +92,7 @@ describe("SwiftAgent", () => {
     });
   });
 
-  describe("enableMcpServer", () => {
+  describe("enableMCPServer", () => {
     let agent: SwiftAgent;
 
     beforeEach(async () => {
@@ -118,7 +118,7 @@ describe("SwiftAgent", () => {
     });
   });
 
-  describe("disableMcpServer", () => {
+  describe("disableMCPServer", () => {
     let agent: SwiftAgent;
 
     beforeEach(async () => {
@@ -137,6 +137,36 @@ describe("SwiftAgent", () => {
 
     it("should not throw error if server name does not exist", () => {
       expect(() => agent.disableMCPServer("non-existent-server")).not.toThrow();
+    });
+  });
+
+  describe("resetMessages", () => {
+    let agent: SwiftAgent;
+
+    beforeEach(() => {
+      agent = new SwiftAgent(llm, {
+        systemPrompt: "You are a helpful assistant.",
+      });
+    });
+
+    it("should clean all messages except the system message by default", async () => {
+      await agent.run("hi");
+      // @ts-expect-error - private property
+      expect(agent._messages).toHaveLength(2);
+      agent.resetMessages();
+      // @ts-expect-error - private property
+      expect(agent._messages).toHaveLength(1);
+      // @ts-expect-error - private property
+      expect(agent._messages[0].content).toBe("You are a helpful assistant.");
+    });
+
+    it("should clean all messages when keepSystemMessage is false", async () => {
+      await agent.run("hi");
+      // @ts-expect-error - private property
+      expect(agent._messages).toHaveLength(2);
+      agent.resetMessages(false);
+      // @ts-expect-error - private property
+      expect(agent._messages).toHaveLength(0);
     });
   });
 });

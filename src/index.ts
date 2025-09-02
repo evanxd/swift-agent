@@ -102,6 +102,14 @@ class SwiftAgent {
     this._setToolsEnabled(serverName, false);
   }
 
+  resetMessages(keepSystemMessage = true): void {
+    if (keepSystemMessage && this._messages[0]?.getType() === "system") {
+      this._messages.splice(1);
+    } else {
+      this._messages = [];
+    }
+  }
+
   private async _getTools(): Promise<ToolInterface[]> {
     const allTools: Array<ToolInterface> = [];
     for (const serverName of Object.keys(
