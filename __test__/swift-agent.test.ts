@@ -38,28 +38,6 @@ describe("SwiftAgent", () => {
   const llm = new FakeChatModel({});
   llm.bindTools = vi.fn().mockReturnValue(llm);
 
-  describe("Default Values", () => {
-    let agent: SwiftAgent;
-
-    beforeEach(() => {
-      agent = new SwiftAgent(llm, {
-        mcp: { mcpServers },
-      });
-    });
-
-    it("should default throwOnLoadError to true when mcp options are provided without it", () => {
-      expect(agent.options?.mcp?.throwOnLoadError).toBe(true);
-    });
-
-    it("should default prefixToolNameWithServerName to true when mcp options are provided without it", () => {
-      expect(agent.options?.mcp?.prefixToolNameWithServerName).toBe(true);
-    });
-
-    it("should default additionalToolNamePrefix to 'mcp' when mcp options are provided without it", () => {
-      expect(agent.options?.mcp?.additionalToolNamePrefix).toBe("mcp");
-    });
-  });
-
   describe("run", () => {
     let agent: SwiftAgent;
 

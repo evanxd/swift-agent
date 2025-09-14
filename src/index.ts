@@ -8,32 +8,26 @@ import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 import {
-  MCPClientConfigInterface,
-  SwiftAgentOptionsInterface,
-  ToolInterface,
-} from "./interfaces";
+  MCPServerConfig,
+  SwiftAgentOptions,
+  MCPServerTool,
+} from "./types.js";
 
 export class SwiftAgent {
   private _model: BaseChatModel;
-  private _options?: SwiftAgentOptionsInterface;
+  private _options?: SwiftAgentOptions;
   private _mcpClient?: MultiServerMCPClient;
-  private _tools: Array<ToolInterface> | undefined;
+  private _tools: Array<MCPServerTool> | undefined;
   private _agent: ReturnType<typeof createReactAgent> | undefined;
   private _messages: Array<BaseMessage> = [];
   private _isInitialized: boolean = false;
 
-  constructor(model: BaseChatModel, options?: SwiftAgentOptionsInterface) {
+  constructor(model: BaseChatModel, options?: SwiftAgentOptions) {
     this._model = model;
     this._options = options;
     if (this._options?.mcp) {
-      this._options.mcp.throwOnLoadError =
-        this._options.mcp.throwOnLoadError || true;
-      this._options.mcp.prefixToolNameWithServerName =
-        this._options.mcp.prefixToolNameWithServerName || true;
-      this._options.mcp.additionalToolNamePrefix =
-        this._options.mcp.additionalToolNamePrefix || "mcp";
       this._mcpClient = new MultiServerMCPClient(
-        this._options.mcp as MCPClientConfigInterface,
+        this._options.mcp as MCPServerConfig,
       );
     }
     if (options?.messageHistory) {
@@ -110,14 +104,14 @@ export class SwiftAgent {
     }
   }
 
-  private async _getTools(): Promise<ToolInterface[]> {
-    const allTools: Array<ToolInterface> = [];
+  private async _getTools(): Promise<MCPServerTool[]> {
+    const allTools: Array<MCPServerTool> = [];
     for (const serverName of Object.keys(
       this._mcpClient?.config.mcpServers || {},
     )) {
       const tools = (await this._mcpClient?.getTools(
         serverName,
-      )) as Array<ToolInterface>;
+      )) as Array<MCPServerTool>;
       for (const tool of tools) {
         tool.serverName = serverName;
         tool.isEnabled = true;

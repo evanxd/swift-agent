@@ -16,10 +16,7 @@
     "mcp",
     "agent"
   ],
-  "author": {
-    "name": "Evan Tseng-Jen Tseng",
-    "email": "evan@tseng.io"
-  },
+  "author": "Evan Tseng-Jen Tseng <evan@tseng.io>",
   "license": "MIT",
   "dependencies": {
     "@langchain/google-genai": "^0.2.5",
