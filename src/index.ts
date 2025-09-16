@@ -9,132 +9,133 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 import {
   MCPServerConfig,
-  SwiftAgentOptions,
   MCPServerTool,
+  SwiftAgentOptions,
 } from "./types.js";
 
 export class SwiftAgent {
-  private _model: BaseChatModel;
-  private _options?: SwiftAgentOptions;
-  private _mcpClient?: MultiServerMCPClient;
-  private _tools: Array<MCPServerTool> | undefined;
-  private _agent: ReturnType<typeof createReactAgent> | undefined;
-  private _messages: Array<BaseMessage> = [];
-  private _isInitialized: boolean = false;
+  private agent?: ReturnType<typeof createReactAgent>;
+  private mcpClient?: MultiServerMCPClient;
+  private messages: BaseMessage[] = [];
+  private model: BaseChatModel;
+  private options?: SwiftAgentOptions;
+  private tools: MCPServerTool[] = [];
+  private toolsInitialized = false;
 
   constructor(model: BaseChatModel, options?: SwiftAgentOptions) {
-    this._model = model;
-    this._options = options;
-    if (this._options?.mcp) {
-      this._mcpClient = new MultiServerMCPClient(
-        this._options.mcp as MCPServerConfig,
+    this.model = model;
+    this.options = options;
+
+    if (this.options?.mcp) {
+      this.mcpClient = new MultiServerMCPClient(
+        this.options.mcp as MCPServerConfig,
       );
     }
     if (options?.messageHistory) {
-      this._messages = options.messageHistory;
+      this.messages = options.messageHistory;
     }
     if (options?.systemPrompt) {
-      if (this._messages.length === 0) {
-        this._messages.push(new SystemMessage(options.systemPrompt));
-      } else if (this._messages[0].getType() === "system") {
-        this._messages[0].content = options.systemPrompt;
-      } else {
-        this._messages.unshift(new SystemMessage(options.systemPrompt));
-      }
+      this.applySystemPrompt(options.systemPrompt);
     }
   }
 
-  get model() {
-    return this._model;
+  public async initialize(): Promise<void> {
+    await this.getAgent();
   }
 
-  get options() {
-    return this._options;
+  public async run(message: string): Promise<BaseMessage[]> {
+    const agent = await this.getAgent();
+    this.messages.push(new HumanMessage(message));
+    const response = await agent.invoke({ messages: this.messages });
+    this.messages = response.messages;
+    return this.messages;
   }
 
-  get tools() {
-    return this._tools;
-  }
-
-  async run(message: string): Promise<BaseMessage[]> {
-    if (!this._isInitialized) {
-      this._tools = await this._getTools();
-      this._agent = createReactAgent({
-        llm: this._model,
-        tools: this._tools,
-      });
+  public async getTools(): Promise<MCPServerTool[]> {
+    if (!this.mcpClient || this.tools.length > 0) {
+      return this.tools;
     }
-    this._messages.push(new HumanMessage(message));
-    if (this._agent) {
-      this._isInitialized = true;
-      const response = await this._agent.invoke({ messages: this._messages });
-      return response.messages;
+    const mcpServers = this.mcpClient.config.mcpServers || {};
+    const serverNames = Object.keys(mcpServers);
+
+    this.tools = (await Promise.all(
+      serverNames.map(async (serverName) => {
+        const tools = (await this.mcpClient?.getTools(serverName)) as
+          | MCPServerTool[]
+          | undefined;
+        if (!tools) {
+          return [];
+        }
+        tools.forEach((tool) => {
+          tool.serverName = serverName;
+          tool.isEnabled = true;
+        });
+        return tools;
+      }),
+    )).flat();
+
+    return this.tools;
+  }
+
+  public async disconnectMCPServers(): Promise<void> {
+    if (this.mcpClient) {
+      await this.mcpClient.close();
+    }
+  }
+
+  public enableMCPServer(serverName: string): void {
+    this.setToolsEnabled(serverName, true);
+  }
+
+  public disableMCPServer(serverName: string): void {
+    this.setToolsEnabled(serverName, false);
+  }
+
+  public resetMessages(keepSystemMessage = true): void {
+    if (keepSystemMessage && this.messages[0]?.getType() === "system") {
+      this.messages.splice(1);
     } else {
-      throw("The agent is not initialized yet.");
+      this.messages = [];
     }
   }
 
-  setModel(model: BaseChatModel): void {
-    this._model = model;
-    this._agent = createReactAgent({
-      llm: this._model,
-      tools: this._tools || [],
+  private applySystemPrompt(systemPrompt: string): void {
+    if (this.messages[0]?.getType() === "system") {
+      this.messages[0].content = systemPrompt;
+    } else {
+      this.messages.unshift(new SystemMessage(systemPrompt));
+    }
+  }
+
+  private async getAgent(): Promise<ReturnType<typeof createReactAgent>> {
+    if (this.agent) {
+      return this.agent;
+    }
+
+    if (!this.toolsInitialized) {
+      this.tools = await this.getTools();
+      this.toolsInitialized = true;
+    }
+
+    this.agent = createReactAgent({
+      llm: this.model,
+      tools: this.tools.filter((tool) => tool.isEnabled),
     });
+
+    return this.agent;
   }
 
-  async disconnectMCPServers(): Promise<void> {
-    if (this._mcpClient) {
-      await this._mcpClient.close();
-    }
-  }
+  private setToolsEnabled(serverName: string, isEnabled: boolean): void {
+    const tools = this.tools.filter(
+      (tool) => tool.serverName === serverName,
+    );
 
-  enableMCPServer(serverName: string): void {
-    this._setToolsEnabled(serverName, true);
-  }
-
-  disableMCPServer(serverName: string): void {
-    this._setToolsEnabled(serverName, false);
-  }
-
-  resetMessages(keepSystemMessage = true): void {
-    if (keepSystemMessage && this._messages[0]?.getType() === "system") {
-      this._messages.splice(1);
-    } else {
-      this._messages = [];
-    }
-  }
-
-  private async _getTools(): Promise<MCPServerTool[]> {
-    const allTools: Array<MCPServerTool> = [];
-    for (const serverName of Object.keys(
-      this._mcpClient?.config.mcpServers || {},
-    )) {
-      const tools = (await this._mcpClient?.getTools(
-        serverName,
-      )) as Array<MCPServerTool>;
-      for (const tool of tools) {
-        tool.serverName = serverName;
-        tool.isEnabled = true;
-      }
-      allTools.push(...tools);
-    }
-    return allTools;
-  }
-
-  private _setToolsEnabled(
-    serverName: string,
-    isEnabled: boolean = true,
-  ): void {
-    const tools = this._tools?.filter((tool) => tool.serverName === serverName);
-    if (!tools || tools.length === 0) {
+    if (tools.length === 0) {
       return;
     }
-    for (const tool of tools) {
+
+    tools.forEach((tool) => {
       tool.isEnabled = isEnabled;
-    }
-    this._agent = createReactAgent({
-      llm: this._model,
-      tools: this._tools?.filter((tool) => tool.isEnabled) || [],
     });
   }
 }
