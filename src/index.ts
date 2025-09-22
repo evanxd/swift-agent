@@ -7,11 +7,7 @@ import {
 import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-import {
-  MCPServerConfig,
-  MCPServerTool,
-  SwiftAgentOptions,
-} from "./types.js";
+import { MCPServerConfig, MCPServerTool, SwiftAgentOptions } from "./types.js";
 
 export class SwiftAgent {
   private agent?: ReturnType<typeof createReactAgent>;
@@ -58,21 +54,23 @@ export class SwiftAgent {
     const mcpServers = this.mcpClient.config.mcpServers || {};
     const serverNames = Object.keys(mcpServers);
 
-    this.tools = (await Promise.all(
-      serverNames.map(async (serverName) => {
-        const tools = (await this.mcpClient?.getTools(serverName)) as
-          | MCPServerTool[]
-          | undefined;
-        if (!tools) {
-          return [];
-        }
-        tools.forEach((tool) => {
-          tool.serverName = serverName;
-          tool.isEnabled = true;
-        });
-        return tools;
-      }),
-    )).flat();
+    this.tools = (
+      await Promise.all(
+        serverNames.map(async (serverName) => {
+          const tools = (await this.mcpClient?.getTools(serverName)) as
+            | MCPServerTool[]
+            | undefined;
+          if (!tools) {
+            return [];
+          }
+          tools.forEach((tool) => {
+            tool.serverName = serverName;
+            tool.isEnabled = true;
+          });
+          return tools;
+        }),
+      )
+    ).flat();
 
     return this.tools;
   }
@@ -126,9 +124,7 @@ export class SwiftAgent {
   }
 
   private setToolsEnabled(serverName: string, isEnabled: boolean): void {
-    const tools = this.tools.filter(
-      (tool) => tool.serverName === serverName,
-    );
+    const tools = this.tools.filter((tool) => tool.serverName === serverName);
 
     if (tools.length === 0) {
       return;

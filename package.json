@@ -2,12 +2,14 @@
   "name": "swift-agent",
   "version": "0.2.3",
   "description": "A building block of agentic systems: an LLM that can retrieve information, use tools, and store user inputs.",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "example": "ts-node examples/run-swift-agent.ts",
-    "lint": "eslint"
+    "example": "node dist/examples/run-swift-agent.js",
+    "lint": "eslint index.ts src examples --ext .ts,.tsx",
+    "lint:fix": "eslint index.ts src examples --ext .ts,.tsx --fix"
   },
   "keywords": [
     "ai",
@@ -27,7 +29,13 @@
   "devDependencies": {
     "@tsconfig/node24": "^24.0.1",
     "@types/node": "^24.3.0",
-    "ts-node": "^10.9.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0"
   }

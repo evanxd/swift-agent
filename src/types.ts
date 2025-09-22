@@ -13,4 +13,6 @@ export interface MCPServerTool extends StructuredToolInterface {
   isEnabled?: boolean;
 }
 
-export type MCPServerConfig = ConstructorParameters<typeof MultiServerMCPClient>[0]
+export type MCPServerConfig = ConstructorParameters<
+  typeof MultiServerMCPClient
+>[0];
